@@ -20,7 +20,7 @@ public class DvdDao {
 		ResultSet rs = null;
 		
 		try {
-			con = pool.getConnection();
+			con = pool.getConnection(); // 커넥션 객체 생성
 			StringBuilder sql = new StringBuilder();
 			sql.append("select * from dvd_view ");
 			sql.append("where title like ? limit 0, 50"); // ? : "%_%"
