@@ -3,6 +3,7 @@ package com.study.dvd.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import com.study.dvd.util.DBConnectionMgr;
 public class ProducerDao {
 	private static DBConnectionMgr pool = DBConnectionMgr.getInstance();
 
-	public static List<Producer> searchProducerByProducerName(String producerName) {
+	public static List<Producer> searchProducerByProducerName(String searchText) {
 		List<Producer> producers = new ArrayList<>();
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -24,7 +25,7 @@ public class ProducerDao {
 			sql.append("select * from producer_tb ");
 			sql.append("where producer_name like ? limit 0, 50"); 
 			pstmt = con.prepareStatement(sql.toString());
-			pstmt.setString(1, "%" + producerName + "%");
+			pstmt.setString(1, "%" + searchText + "%");
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
@@ -38,8 +39,33 @@ public class ProducerDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			pool.freeConnection(con, pstmt, rs);
+			pool.freeConnection(con, pstmt, rs); // 객체 소멸
 		}
 		return producers;
+	}
+	
+	public static int save(Producer producer) {
+		int successCount = 0;
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			con = pool.getConnection();
+			String sql = "insert into producer_tb values(0, ?)";
+			pstmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); // Statement.RETURN_GENERATED_KEYS : AI key값을 가져오기 위해서
+			pstmt.setString(1, producer.getProducerName());
+			successCount = pstmt.executeUpdate();
+			rs = pstmt.getGeneratedKeys();
+			while(rs.next()) {
+				producer.setProducerId(rs.getInt(1));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			pool.freeConnection(con, pstmt, rs);
+		}
+		
+		return successCount;
 	}
 }

@@ -45,9 +45,10 @@
 					<td><%=producer.getProducerId() %></td>
 					<td><%=producer.getProducerName() %></td>		
 				</tr>
-			<%
-				}
+			<% 
+				};
 			%>
+			
 		</tbody>
 	</table>
 
